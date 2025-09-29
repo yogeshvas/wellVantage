@@ -15,9 +15,10 @@ import Subscription from "./modules/gym/screens/profile/Subscription";
 import FAQ from "./modules/gym/screens/profile/FAQ";
 import GoalAndRewards from "./modules/gym/screens/profile/GoalAndRewards";
 import Toast from "./components/custom/Toast";
+import Leads from "./modules/gym/screens/leads";
 
 const Dashboard = () => <div>Dashboard Content</div>;
-const Workouts = () => <div>Workouts Content</div>;
+// const Workouts = () => <div>Workouts Content</div>;
 const Schedule = () => <div>Schedule Content</div>;
 const Progress = () => <div>Progress Content</div>;
 const Settings = () => <div>Settings Content</div>;
@@ -29,7 +30,7 @@ const DashboardLayout = () => {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/workouts" element={<Workouts />} />
+        <Route path="/leads" element={<Leads />} />
         <Route path="/schedule" element={<Schedule />} />
         <Route path="/progress" element={<Progress />} />
         <Route path="/settings" element={<Settings />} />
