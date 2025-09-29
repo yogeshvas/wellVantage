@@ -5,7 +5,6 @@ import useAuthStore from "./store/authStore";
 import Onboarding from "./modules/auth/pages/Onboarding";
 import Login from "./modules/auth/pages/Login";
 import Register from "./modules/auth/pages/Register";
-import { Toaster } from "react-hot-toast";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { SidebarLayout } from "./layouts/HomeSidebarLayout";
 import Profile from "./modules/gym/screens/profile";
@@ -15,8 +14,8 @@ import YogaAndZumba from "./modules/gym/screens/profile/YogaAndZumba";
 import Subscription from "./modules/gym/screens/profile/Subscription";
 import FAQ from "./modules/gym/screens/profile/FAQ";
 import GoalAndRewards from "./modules/gym/screens/profile/GoalAndRewards";
+import Toast from "./components/custom/Toast";
 
-// Example page components
 const Dashboard = () => <div>Dashboard Content</div>;
 const Workouts = () => <div>Workouts Content</div>;
 const Schedule = () => <div>Schedule Content</div>;
@@ -78,23 +77,7 @@ const App = () => {
           </>
         )}
       </Routes>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: "#363636",
-            color: "#fff",
-          },
-          success: {
-            duration: 3000,
-            iconTheme: {
-              primary: "#10b981",
-              secondary: "#fff",
-            },
-          },
-        }}
-      />
+      <Toast />
     </div>
   );
 };
