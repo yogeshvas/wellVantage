@@ -12,16 +12,10 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Archive, Phone, MessageCircle, RotateCcw } from "lucide-react";
 import { useLeadStore, type Lead } from "@/store/leadStore";
-import LeadForm from "./components/LeadForm";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import {
   Pagination,
   PaginationContent,
@@ -40,10 +34,8 @@ const truncateName = (name: string, maxLength: number = 20): string => {
 };
 
 const Leads = () => {
+  const navigate = useNavigate();
   const { leads, archiveLead, unarchiveLead } = useLeadStore();
-  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isNew, setIsNew] = useState(false);
   const [activePage, setActivePage] = useState(1);
   const [archivedPage, setArchivedPage] = useState(1);
   const itemsPerPage = 9;
@@ -74,16 +66,12 @@ const Leads = () => {
     }
   }, [archivedLeads]);
 
-  const handleRowClick = (id: string) => {
-    setSelectedLeadId(id);
-    setIsFormOpen(true);
-    setIsNew(false);
+  const handleAddNew = () => {
+    navigate("/leads/add");
   };
 
-  const handleAddNew = () => {
-    setSelectedLeadId(null);
-    setIsFormOpen(true);
-    setIsNew(true);
+  const handleEditLead = (leadId: string) => {
+    navigate(`/leads/edit/${leadId}`);
   };
 
   const handleArchive = (id: string, e: React.MouseEvent) => {
@@ -100,13 +88,11 @@ const Leads = () => {
 
   const handleCall = (e: React.MouseEvent) => {
     e.stopPropagation();
-
     toast.success("Calling!");
   };
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
-
     toast.success("Opening WhatsApp!");
   };
 
@@ -135,7 +121,7 @@ const Leads = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="active" className="flex items-start w-full">
+      <Tabs defaultValue="active" className="">
         <TabsList className="w-full sm:w-auto">
           <TabsTrigger value="active" className="flex-1 sm:flex-none">
             Active ({activeLeads.length})
@@ -144,18 +130,118 @@ const Leads = () => {
             Archived ({archivedLeads.length})
           </TabsTrigger>
         </TabsList>
+
         <TabsContent value="active" className="w-full">
           <div className="overflow-x-auto">
-            <LeadTable
-              leads={getPaginatedLeads(activeLeads, activePage)}
-              onRowClick={handleRowClick}
-              onArchive={handleArchive}
-              onCall={handleCall}
-              onWhatsApp={handleWhatsApp}
-              getInterestBadgeVariant={getInterestBadgeVariant}
-              getFollowUpBadgeVariant={getFollowUpBadgeVariant}
-              isArchived={false}
-            />
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="hidden md:table-cell">Phone</TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Interest Level
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Assigned to
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Last Interaction
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Follow Up
+                  </TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {getPaginatedLeads(activeLeads, activePage).map((lead) => (
+                  <TableRow
+                    key={lead.id}
+                    onClick={() => handleEditLead(lead.id)}
+                    className="cursor-pointer hover:bg-gray-50"
+                  >
+                    <TableCell className="font-medium truncate">
+                      {truncateName(`${lead.firstName} ${lead.lastName}`)}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell whitespace-nowrap">
+                      {lead.phone}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Badge
+                        variant={
+                          getInterestBadgeVariant(lead.interestLevel) as
+                            | "default"
+                            | "secondary"
+                            | "destructive"
+                            | "outline"
+                            | undefined
+                        }
+                      >
+                        {lead.interestLevel}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell whitespace-nowrap">
+                      {lead.assignedTo}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell whitespace-nowrap">
+                      {lead.lastInteraction}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Badge
+                        variant={
+                          getFollowUpBadgeVariant(lead.followUpStatus) as
+                            | "default"
+                            | "secondary"
+                            | "destructive"
+                            | "outline"
+                            | undefined
+                        }
+                      >
+                        {lead.followUpStatus}
+                      </Badge>
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex gap-1 sm:gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => handleWhatsApp(e)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => handleCall(e)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Phone className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => handleArchive(lead.id, e)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Archive className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {activeLeads.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="text-center text-muted-foreground"
+                    >
+                      No active leads found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
           {activeLeads.length > itemsPerPage && (
             <PaginationSection
@@ -165,18 +251,118 @@ const Leads = () => {
             />
           )}
         </TabsContent>
+
         <TabsContent value="archived" className="w-full">
           <div className="overflow-x-auto">
-            <LeadTable
-              leads={getPaginatedLeads(archivedLeads, archivedPage)}
-              onRowClick={handleRowClick}
-              onUnarchive={handleUnarchive}
-              onCall={handleCall}
-              onWhatsApp={handleWhatsApp}
-              getInterestBadgeVariant={getInterestBadgeVariant}
-              getFollowUpBadgeVariant={getFollowUpBadgeVariant}
-              isArchived={true}
-            />
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="hidden md:table-cell">Phone</TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Interest Level
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Assigned to
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Last Interaction
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Follow Up
+                  </TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {getPaginatedLeads(archivedLeads, archivedPage).map((lead) => (
+                  <TableRow
+                    key={lead.id}
+                    onClick={() => handleEditLead(lead.id)}
+                    className="cursor-pointer hover:bg-gray-50"
+                  >
+                    <TableCell className="font-medium truncate">
+                      {truncateName(`${lead.firstName} ${lead.lastName}`)}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell whitespace-nowrap">
+                      {lead.phone}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Badge
+                        variant={
+                          getInterestBadgeVariant(lead.interestLevel) as
+                            | "default"
+                            | "secondary"
+                            | "destructive"
+                            | "outline"
+                            | undefined
+                        }
+                      >
+                        {lead.interestLevel}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell whitespace-nowrap">
+                      {lead.assignedTo}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell whitespace-nowrap">
+                      {lead.lastInteraction}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Badge
+                        variant={
+                          getFollowUpBadgeVariant(lead.followUpStatus) as
+                            | "default"
+                            | "secondary"
+                            | "destructive"
+                            | "outline"
+                            | undefined
+                        }
+                      >
+                        {lead.followUpStatus}
+                      </Badge>
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex gap-1 sm:gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => handleWhatsApp(e)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => handleCall(e)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Phone className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => handleUnarchive(lead.id, e)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {archivedLeads.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="text-center text-muted-foreground"
+                    >
+                      No archived leads found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
           {archivedLeads.length > itemsPerPage && (
             <PaginationSection
@@ -187,156 +373,9 @@ const Leads = () => {
           )}
         </TabsContent>
       </Tabs>
-
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{isNew ? "Add New Lead" : "Edit Lead"}</DialogTitle>
-          </DialogHeader>
-          <LeadForm
-            leadId={selectedLeadId}
-            onClose={() => setIsFormOpen(false)}
-            isNew={isNew}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
-
-// Sub-component for table
-const LeadTable = ({
-  leads,
-  onRowClick,
-  onArchive,
-  onUnarchive,
-  onCall,
-  onWhatsApp,
-  getInterestBadgeVariant,
-  getFollowUpBadgeVariant,
-  isArchived,
-}: {
-  leads: Lead[];
-  onRowClick: (id: string) => void;
-  onArchive?: (id: string, e: React.MouseEvent) => void;
-  onUnarchive?: (id: string, e: React.MouseEvent) => void;
-  onCall: (e: React.MouseEvent) => void;
-  onWhatsApp: (e: React.MouseEvent) => void;
-  getInterestBadgeVariant: (level: string) => string;
-  getFollowUpBadgeVariant: (status: string) => string;
-  isArchived: boolean;
-}) => (
-  <Table>
-    <TableHeader>
-      <TableRow>
-        <TableHead>Name</TableHead>
-        <TableHead className="hidden md:table-cell">Phone</TableHead>
-        <TableHead className="hidden md:table-cell">Interest Level</TableHead>
-        <TableHead className="hidden md:table-cell">Assigned to</TableHead>
-        <TableHead className="hidden md:table-cell">Last Interaction</TableHead>
-        <TableHead className="hidden md:table-cell">Follow Up</TableHead>
-        <TableHead>Actions</TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      {leads.map((lead) => (
-        <TableRow
-          key={lead.id}
-          onClick={() => onRowClick(lead.id)}
-          className="cursor-pointer hover:bg-gray-50"
-        >
-          <TableCell className="font-medium truncate">
-            {truncateName(`${lead.firstName} ${lead.lastName}`)}
-          </TableCell>
-          <TableCell className="hidden md:table-cell whitespace-nowrap">
-            {lead.phone}
-          </TableCell>
-          <TableCell className="hidden md:table-cell">
-            <Badge
-              variant={
-                getInterestBadgeVariant(lead.interestLevel) as
-                  | "default"
-                  | "secondary"
-                  | "destructive"
-                  | "outline"
-                  | undefined
-              }
-            >
-              {lead.interestLevel}
-            </Badge>
-          </TableCell>
-          <TableCell className="hidden md:table-cell whitespace-nowrap">
-            {lead.assignedTo}
-          </TableCell>
-          <TableCell className="hidden md:table-cell whitespace-nowrap">
-            {lead.lastInteraction}
-          </TableCell>
-          <TableCell className="hidden md:table-cell">
-            <Badge
-              variant={
-                getFollowUpBadgeVariant(lead.followUpStatus) as
-                  | "default"
-                  | "secondary"
-                  | "destructive"
-                  | "outline"
-                  | undefined
-              }
-            >
-              {lead.followUpStatus}
-            </Badge>
-          </TableCell>
-          <TableCell onClick={(e) => e.stopPropagation()}>
-            <div className="flex gap-1 sm:gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => onWhatsApp(e)}
-                className="h-8 w-8 p-0"
-              >
-                <MessageCircle className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => onCall(e)}
-                className="h-8 w-8 p-0"
-              >
-                <Phone className="h-4 w-4" />
-              </Button>
-              {!isArchived && onArchive && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => onArchive(lead.id, e)}
-                  className="h-8 w-8 p-0"
-                >
-                  <Archive className="h-4 w-4" />
-                </Button>
-              )}
-              {isArchived && onUnarchive && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => onUnarchive(lead.id, e)}
-                  className="h-8 w-8 p-0"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </TableCell>
-        </TableRow>
-      ))}
-      {leads.length === 0 && (
-        <TableRow>
-          <TableCell colSpan={7} className="text-center text-muted-foreground">
-            No {isArchived ? "archived" : "active"} leads found.
-          </TableCell>
-        </TableRow>
-      )}
-    </TableBody>
-  </Table>
-);
 
 // Pagination component
 const PaginationSection = ({

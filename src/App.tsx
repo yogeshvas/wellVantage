@@ -16,10 +16,16 @@ import FAQ from "./modules/gym/screens/profile/FAQ";
 import GoalAndRewards from "./modules/gym/screens/profile/GoalAndRewards";
 import Toast from "./components/custom/Toast";
 import Leads from "./modules/gym/screens/leads";
+import Dashboard from "./modules/gym/screens/dashboard";
+import Membership from "./modules/gym/screens/membership/pages";
+import Members from "./modules/gym/screens/members/screens";
+import AddMember from "./modules/gym/screens/members/components/AddMember";
+import EmployeeForm from "./modules/gym/screens/employees/components/EmployeeForm";
+import EmployeeManagement from "./modules/gym/screens/employees";
+import MembershipForm from "./modules/gym/screens/membership/components/MembershipForm";
+import LeadFormScreen from "./modules/gym/screens/leads/components/LeadForm";
 
-const Dashboard = () => <div>Dashboard Content</div>;
 // const Workouts = () => <div>Workouts Content</div>;
-const Schedule = () => <div>Schedule Content</div>;
 const Progress = () => <div>Progress Content</div>;
 const Settings = () => <div>Settings Content</div>;
 
@@ -30,8 +36,19 @@ const DashboardLayout = () => {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
+
         <Route path="/leads" element={<Leads />} />
-        <Route path="/schedule" element={<Schedule />} />
+        <Route path="/leads/add" element={<LeadFormScreen />} />
+        <Route path="/leads/edit/:id" element={<LeadFormScreen />} />
+        <Route path="/members" element={<Members />} />
+        <Route path="/members/add" element={<AddMember />} />
+        <Route path="/members/edit/:id" element={<AddMember />} />
+        <Route path="/employees" element={<EmployeeManagement />} />
+        <Route path="/employees/add" element={<EmployeeForm />} />
+        <Route path="/employees/edit/:id" element={<EmployeeForm />} />
+        <Route path="/memberships" element={<Membership />} />
+        <Route path="/memberships/add" element={<MembershipForm />} />
+        <Route path="/memberships/edit/:id" element={<MembershipForm />} />
         <Route path="/progress" element={<Progress />} />
         <Route path="/settings" element={<Settings />} />
 
